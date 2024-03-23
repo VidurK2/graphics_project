@@ -1,5 +1,5 @@
 
-# Project Proposal
+# Project Proposals
 
 
 ## 1. Gravity Simulator
