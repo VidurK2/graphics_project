@@ -12,6 +12,11 @@ The proposed project aims to develop an engaging particle simulator application,
 - Implement functionalities to control effects like gravity, motion, collision.
 - Provide options for users to enable/disable collisions and add various objects for particles to interact with.
 
+- Collision Detection: Implement efficient algorithms, such as bounding box collision detection, to accurately detect collisions between particles and objects in the simulation.
+- Rendering Optimization: Introduce rendering optimizations, such as batch rendering and object pooling, to enhance performance and maintain a smooth frame rate, even with a large number of particles
+
+Furthermore, I intend to extend the project by incorporating one or more specific enhancements, such as Particle Effects (such as trails), Dynamic Lighting to simulate light sources and object shadows, environment mapping, or potentially real-time ray tracing. I will research these concepts thoroughly and including at least one of them, if not more, on top of the project to enrich the simulation.
+
 **(b) Methodology:**
 
 - **User Interface Development:** Design a user-friendly interface enabling users to add particles and adjust their attributes.
@@ -22,23 +27,3 @@ The proposed project aims to develop an engaging particle simulator application,
 
 
 ### Inspired by [Project JDM](https://www.instagram.com/project.jdm?igsh=bGJpbDY5Y2kzcXN5)
-
-#
-  
-
-## 2. Voronoi Diagrams
-
-The proposed project aims to leverage Voronoi Diagrams to develop two interactive features. Firstly, users will be able to plot points to create appropriate regions around them and understand what voronoi diagrams are. Secondly, the project will utilize Voronoi Diagrams to strategically position fielders in a cricket match. These features will facilitate user interaction with Voronoi Diagrams and aid in planning out player positioning in cricket matches, enhancing both fielding and batting strategies.
-
-**(a) Objectives:**
-
-- Develop an interactive platform allowing users to plot points and generate Voronoi Diagrams around them.
-- Implement the same to identify strategic fielding locations based on Voronoi Diagrams in a cricket field.
-- Provide insights for fielding teams to optimize player positioning and for batting teams to identify potential weaknesses in the fielding setup.
-- Enhance user understanding and engagement with Voronoi Diagrams through practical applications in cricket.
-
-**(b). Methodology:**
-
-- **Interactive Voronoi Diagram Generation:** Develop a user-friendly interface where users can input points and visualize the corresponding Voronoi Diagram. This will involve implementing algorithms for Voronoi Diagram construction and integrating them into the platform.
-
-- **Strategic Fielding Positioning:** Utilize Voronoi Diagrams to determine optimal fielding positions for cricket fielders. 
