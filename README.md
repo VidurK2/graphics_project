@@ -2,7 +2,7 @@
 # Project Proposals
 
 
-## 1. Gravity Simulator
+## Gravity Simulator
 
 The proposed project aims to develop an engaging particle simulator application, offering users the ability to create and manipulate particles with customizable attributes. Users will have control over various effects such as gravity,  motion, collision, and possibly time.
 
