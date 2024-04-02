@@ -1,62 +1,38 @@
 import pygame
 import numpy as np
 
-# Initialize Pygame
+wall_color = (120, 238, 74)
+total_box_width = 500
+total_box_height = 500
+up_side = 50
+down_side = up_side + total_box_height
+left_side = 100
+right_side = left_side + total_box_width
+thickness_wall = 5
+
+height = 800
+width = 600
+
 pygame.init()
-screen = pygame.display.set_mode((800, 600))
+screen = pygame.display.set_mode((height, width))
 pygame.display.set_caption("Gravity Simulation")
+collision_left = pygame.Rect(left_side, up_side, thickness_wall, total_box_height)
+collision_right = pygame.Rect(right_side, up_side, thickness_wall, total_box_height + thickness_wall)
+collision_up = pygame.Rect(left_side, up_side, total_box_width, thickness_wall)
+collision_down = pygame.Rect(left_side, down_side, total_box_width, thickness_wall)
 
-# Constants
-G = 6.674 * 10**-11
-dt = 0.1
-scale = 1e-6
 
-# Colors
-white = (255, 255, 255)
-black = (0, 0, 0)
-red = (255, 0, 0)
+pygame.draw.rect(screen, wall_color, collision_left)
+pygame.draw.rect(screen, wall_color, collision_right)
+pygame.draw.rect(screen, wall_color, collision_up)
+pygame.draw.rect(screen, wall_color, collision_down)
 
-# Particles
-class Particle:
-    def __init__(self, x, y, vx, vy, mass):
-        self.x = x
-        self.y = y
-        self.vx = vx
-        self.vy = vy
-        self.mass = mass
-
-particles = [
-    Particle(400, 300, 0, 0, 5.972 * 10**24),
-    Particle(400, 200, 0, 0, 7.342 * 10**22)
-]
-
-# Main loop
+#run
 running = True
 while running:
-    screen.fill(white)
-
-    for particle in particles:
-        ax = 0
-        ay = 0
-        for other in particles:
-            if other != particle:
-                dx = other.x - particle.x
-                dy = other.y - particle.y
-                r = np.sqrt(dx**2 + dy**2)
-                a = G * other.mass / r**2
-                ax += a * dx / r
-                ay += a * dy / r
-        particle.vx += ax * dt
-        particle.vy += ay * dt
-        particle.x += particle.vx * dt
-        particle.y += particle.vy * dt
-
-        pygame.draw.circle(screen, black, (int(particle.x * scale), int(particle.y * scale)), 5)
-    
-    pygame.display.flip()
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    pygame.display.flip()
 
 pygame.quit()
