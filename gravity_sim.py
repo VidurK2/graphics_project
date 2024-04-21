@@ -6,8 +6,8 @@ import time
 pygame.init()
 
 blockColor = (50, 85, 140)
-screenColor = (255,255,255)
-lineColor = (0,0,0)
+screenColor = (0,0,0)
+lineColor = (255,255,255)
 shCol = (100, 100, 100)
 
 total_box_width = 500
@@ -50,6 +50,46 @@ self.centripetal_acceleration = 0 """
 
 
 
+import pygame
+import random
+
+pygame.init()
+
+def create_particle(pos):
+    return {
+        'x': pos[0],
+        'y': pos[1],
+        'vx': random.randint(-2, 2),
+        'vy': random.randint(-2, 2),
+        'rad': 5
+    }
+
+def draw_particle(particle, surface):
+    pygame.draw.circle(surface, (255, 255, 255), (int(particle['x']), int(particle['y'])), particle['rad'])
+
+def update_particle(particle):
+    particle['x'] += particle['vx']
+    particle['y'] += particle['vy']
+    particle['vx'] += random.uniform(-0.1, 0.1)
+    particle['vy'] += random.uniform(-0.1, 0.1)
+    particle['rad'] = max(1, particle['rad'] - 0.05)
+
+def create_dust_trail(pos):
+    particles = []
+    for _ in range(100):
+        particles.append(create_particle(pos))
+    return particles
+
+def draw_dust_trail(particles, surface):
+    for particle in particles:
+        draw_particle(particle, surface)
+
+def update_dust_trail(particles):
+    for particle in particles:
+        update_particle(particle)
+
+
+
 def move(block):
 
     block['posX'] += block['speedX'] * clockTick
@@ -88,25 +128,25 @@ def blockCreate(box, mass, location=None, speedX=None, speedY=None):
 
     if speedX is None:
         speedX = random.random() * random.randint(-2, 2)
-    
     else:
         speedX = speedX
 
     if speedY is None:
         speedY = random.random() * random.randint(-2, 2)
-    
     else:
         speedY = speedY
     
     if not location:
         posX = random.randint(left_side + radius, right_side - radius)
         posY = random.randint(up_side + radius, down_side - radius)
-    
     else:
         posX, posY = location[0], location[1]
     
     drawCircle = pygame.draw.circle(screen, blockColor, (posX, posY), radius)
     pastCollide = None
+
+    # Create a dust trail for each block
+    dust_trail = create_dust_trail((posX, posY))
 
     return {
         'box': box,
@@ -117,8 +157,10 @@ def blockCreate(box, mass, location=None, speedX=None, speedY=None):
         'posX': posX,
         'posY': posY,
         'drawCircle': drawCircle,
-        'pastCollide': pastCollide
+        'pastCollide': pastCollide,
+        'dust_trail': dust_trail  
     }
+
 
 def blockAdd(block=None):
     global blocks_no
@@ -134,6 +176,7 @@ def blockAdd(block=None):
 
 def play():
     global playing, collide, blocksNew, sizeBlockNew, newBlockDraw, click, prevKeyTime, prevMousePointer, isPause
+    dust_trail = create_dust_trail((400, 300))
     while playing:
         times.tick(240)
         for event in pygame.event.get():
@@ -168,9 +211,7 @@ def play():
             if key[pygame.K_DOWN]:
                 if sizeBlockNew > 1:
                     sizeBlockNew = sizeBlockNew - 1
-            
-            """ if key[pygame.K_ESCAPE]:
-                  reset()  """    
+           
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                     click = True
@@ -199,7 +240,7 @@ def play():
                     else:
                         for i in range(blocksNew):
                             blockAddScreen = blockCreate(screen, sizeBlockNew)
-                            screen.blockAdd(blockAddScreen)
+                            blockAdd(blockAddScreen)
             
             screen.fill(screenColor)
 
@@ -207,16 +248,16 @@ def play():
             pygame.draw.rect(screen, lineColor, collision_right)
             pygame.draw.rect(screen, lineColor, collision_up)
             pygame.draw.rect(screen, lineColor, collision_down)
-        
-
-            # draw_text()
 
             for block in blocks:
                 if not isPause:
                     move(block)
                 
-                rect = pygame.draw.circle(screen, blockColor, (block['posX'], block['posY']), block['radius'], 1)
+                # Draw and update the dust trail for each block
+                update_dust_trail(block['dust_trail'])
+                draw_dust_trail(block['dust_trail'], screen)
 
+                rect = pygame.draw.circle(screen, blockColor, (block['posX'], block['posY']), block['radius'], 1)
                 block['rect'] = rect
                 wallHit(rect, block)
 
