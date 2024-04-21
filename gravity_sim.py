@@ -5,7 +5,7 @@ import time
 
 pygame.init()
 
-blockColor = (50, 85, 140)
+blockColor = (249, 230, 242)
 screenColor = (0,0,0)
 lineColor = (255,255,255)
 shCol = (100, 100, 100)
@@ -59,13 +59,13 @@ def create_particle(pos):
     return {
         'x': pos[0],
         'y': pos[1],
-        'vx': random.randint(-2, 2),
-        'vy': random.randint(-2, 2),
-        'rad': 5
+        'vx': random.randint(-1, 1),
+        'vy': random.randint(-1, 1),
+        'rad': 2
     }
 
 def draw_particle(particle, surface):
-    pygame.draw.circle(surface, (255, 255, 255), (int(particle['x']), int(particle['y'])), particle['rad'])
+    pygame.draw.circle(surface, (255,10,0), (int(particle['x']), int(particle['y'])), particle['rad'])
 
 def update_particle(particle):
     particle['x'] += particle['vx']
@@ -76,9 +76,13 @@ def update_particle(particle):
 
 def create_dust_trail(pos):
     particles = []
-    for _ in range(100):
+    for _ in range(15):
         particles.append(create_particle(pos))
     return particles
+
+def create_dust_trail_relative_to_block(block):
+    pos = (block['posX'], block['posY'])
+    return create_dust_trail(pos)
 
 def draw_dust_trail(particles, surface):
     for particle in particles:
@@ -170,6 +174,8 @@ def blockAdd(block=None):
 
     disPos = False
 
+    block['dust_trail'] = create_dust_trail_relative_to_block(block)  # Create dust trail for the block
+
     blocks.append(block)
     blocks_no += 1
 
@@ -244,24 +250,30 @@ def play():
             
             screen.fill(screenColor)
 
-            pygame.draw.rect(screen, lineColor, collision_left)
-            pygame.draw.rect(screen, lineColor, collision_right)
-            pygame.draw.rect(screen, lineColor, collision_up)
-            pygame.draw.rect(screen, lineColor, collision_down)
+        pygame.draw.rect(screen, lineColor, collision_left)
+        pygame.draw.rect(screen, lineColor, collision_right)
+        pygame.draw.rect(screen, lineColor, collision_up)
+        pygame.draw.rect(screen, lineColor, collision_down)
 
-            for block in blocks:
-                if not isPause:
-                    move(block)
-                
-                # Draw and update the dust trail for each block
-                update_dust_trail(block['dust_trail'])
-                draw_dust_trail(block['dust_trail'], screen)
+        for block in blocks:
+            if not isPause:
+                move(block)
+            
+            # Move the dust trail particles just behind the block
+            for i in range(len(block['dust_trail'])):
+                # Update particle positions based on the block's movement
+                block['dust_trail'][i]['x'] = block['posX'] - (i * block['speedX'] * 2)
+                block['dust_trail'][i]['y'] = block['posY'] - (i * block['speedY'] * 2)
+                update_particle(block['dust_trail'][i])
 
-                rect = pygame.draw.circle(screen, blockColor, (block['posX'], block['posY']), block['radius'], 1)
-                block['rect'] = rect
-                wallHit(rect, block)
+            # Draw the dust trail particles
+            draw_dust_trail(block['dust_trail'], screen)
 
-            pygame.display.flip()
+            rect = pygame.draw.circle(screen, blockColor, (block['posX'], block['posY']), block['radius'], 1)
+            block['rect'] = rect
+            wallHit(rect, block)
+
+        pygame.display.flip()
     pygame.quit()
 
 play()
