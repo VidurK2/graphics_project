@@ -151,7 +151,7 @@ class map:
             for j in range(len(self.walls[i])):
                 wallPos = [j*16, i*16]
                 if self.walls[i][j]:
-                    pg.draw.rect(canvas, (0,255,0), (wallPos[0], wallPos[1], 16, 16))
+                    pg.draw.rect(canvas, (150,150,150), (wallPos[0], wallPos[1], 16, 16))
                 else:
                     canvas.blit(wallTex[self.texMap[i][j]], wallPos)
 
@@ -478,10 +478,11 @@ final_map = map()
 # ball_color = (255, 0, 0) 
 #ball = Ball(display_width // 2, display_height // 2, ball_radius, ball_color)
 
-lightSize = 100
+lightSize = 200
 lightColor = (255, 185, 9)
 lightIntensity = 1
 lightPoint = False
+minimum_light_size = 50
 
 finalLight = torch(lightSize, lightColor, lightIntensity, lightPoint)
 
@@ -495,7 +496,7 @@ score = 0
 font = pg.font.Font(None, 20)
 
 time_passed = 0
-timer_duration = 60 * 1000 
+timer_duration = 30 * 1000 
 
 # MAIN LOOP
 while True:
@@ -553,6 +554,10 @@ while True:
             if random_rect.collidepoint((mx,my)):
                 score = score + 10
                 random_coordinate = final_map.changeColor(display)
+                lightSize -= 10
+                lightSize = max(lightSize, minimum_light_size)
+                finalLight = torch(lightSize, lightColor, lightIntensity, lightPoint)
+                print(lightSize)
             
 
 
