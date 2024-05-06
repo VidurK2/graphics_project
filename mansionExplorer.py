@@ -491,7 +491,8 @@ allSurf = []
 light_mask_enabled = True
 
 random_coordinate = final_map.changeColor(display)
-
+score = 0
+font = pg.font.Font(None, 36)
 
 # MAIN LOOP
 while True:
@@ -540,7 +541,8 @@ while True:
             print(random_coordinate)
             # Check if the mouse click position collides with the random rectangle
             if random_rect.collidepoint((mx,my)):
-                print("yes")
+                score = score + 10
+                random_coordinate = final_map.changeColor(display)
             
 
 
@@ -552,8 +554,13 @@ while True:
     
     display.blit(torchDisp, (0,0), special_flags=pg.BLEND_RGBA_MULT)
     # display.blit(wallTex[90], (random_coordinate[0], random_coordinate[1]))
+
+    text = font.render("Score: " + str(score), True, (0, 0, 255))
+    display.blit(text, (0, 0))
     
     surf = pg.transform.scale(display, (map_width, map_height))
     screen.blit(surf,(0,0))
 
     pg.display.update()
+
+print("Your Final Score : ", score)
