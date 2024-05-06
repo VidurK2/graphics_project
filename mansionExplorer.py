@@ -492,11 +492,21 @@ light_mask_enabled = True
 
 random_coordinate = final_map.changeColor(display)
 score = 0
-font = pg.font.Font(None, 36)
+font = pg.font.Font(None, 20)
+
+time_passed = 0
+timer_duration = 60 * 1000 
 
 # MAIN LOOP
 while True:
     # Setting up vars and Map
+
+    dt = pg.time.Clock().tick(frames_per_second)
+    time_passed += dt
+
+    if time_passed >= timer_duration:
+        pg.quit()
+        break
 
     time.tick(frames_per_second)
     display.fill((0, 0, 0))
@@ -555,8 +565,12 @@ while True:
     display.blit(torchDisp, (0,0), special_flags=pg.BLEND_RGBA_MULT)
     # display.blit(wallTex[90], (random_coordinate[0], random_coordinate[1]))
 
-    text = font.render("Score: " + str(score), True, (0, 0, 255))
-    display.blit(text, (0, 0))
+    scoreText = font.render("Score: " + str(score), True, (0, 0, 255))
+    display.blit(scoreText, (100, 0))
+
+    time_remaining = (timer_duration - time_passed) // 1000
+    timeText = font.render("Time: " + str(time_remaining) + "s", True, (0, 0, 255))
+    display.blit(timeText, (0,0))
     
     surf = pg.transform.scale(display, (map_width, map_height))
     screen.blit(surf,(0,0))
