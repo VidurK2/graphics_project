@@ -155,6 +155,7 @@ class map:
                 else:
                     canvas.blit(wallTex[self.texMap[i][j]], wallPos)
 
+
     def makeWall(self):
         wallLen = len(self.walls)
         for i in range(wallLen):
@@ -228,6 +229,27 @@ class map:
 
         else:
             return random.choice([6,7,8,9,16,17,18,19,26,27,28,29])
+
+    def createLightMask(self, torch_x, torch_y, light_radius):
+        mask = pg.Surface((map_width, map_height)).convert_alpha()
+        mask.fill((0, 0, 0, 255))
+        pg.draw.circle(mask, (255, 255, 255, 0), (torch_x, torch_y), light_radius)
+        return mask
+    
+    def changeColor(self, canvas):
+        wallLen = len(self.walls)
+        # for i in range(wallLen):
+        #     for j in range(len(self.walls[i])):
+        #         wallPos = [j*16, i*16]
+        #         if self.walls[i][j] == 0:
+        #             print(wallPos[0], wallPos[1])
+        #             pg.draw.rect(canvas, (255,0,0), (wallPos[0], wallPos[1], 16, 16))
+        
+        zero_coordinates = [(x, y) for y in range(len(self.walls)) for x in range(len(self.walls[0])) if self.walls[y][x] == 0]
+        random_coordinate = random.choice(zero_coordinates)
+
+        return (random_coordinate[0]*16, random_coordinate[1]*16, 16, 16)
+
 
 
 #======================================================================================================================
@@ -452,12 +474,11 @@ class torch:
 
 final_map = map()
 
-
 # ball_radius = 10
 # ball_color = (255, 0, 0) 
 #ball = Ball(display_width // 2, display_height // 2, ball_radius, ball_color)
 
-lightSize = 150
+lightSize = 100
 lightColor = (255, 185, 9)
 lightIntensity = 1
 lightPoint = False
@@ -467,7 +488,9 @@ finalLight = torch(lightSize, lightColor, lightIntensity, lightPoint)
 allLights = []
 allSurf = []
 
+light_mask_enabled = True
 
+random_coordinate = final_map.changeColor(display)
 
 
 # MAIN LOOP
@@ -482,14 +505,44 @@ while True:
     mouseY = round(mouseY // 3)
 
     final_map.drawMap(display)
-
+    display.blit(wallTex[90], (random_coordinate[0], random_coordinate[1]))
+    light_mask = final_map.createLightMask(mouseX, mouseY, lightSize)
+    display.blit(light_mask, (0, 0), special_flags=pg.BLEND_RGBA_MIN)
 
 
     # Torch Activity
 
     torchDisp = pg.Surface((display.get_size()))
-
     torchDisp.blit(torchGlob(display.get_size(), 50), (0,0))
+
+    if light_mask_enabled:  # Apply light mask if enabled
+        finalLight.dynamicTorch(final_map.wallShadow, torchDisp, mouseX, mouseY)
+        for torch in allLights:
+            torch[0].dynamicTorch(final_map.wallShadow, torchDisp, torch[1][0], torch[1][1])
+            display.blit(wallTex[90], (torch[1][0] - 8, torch[1][1] - 8))
+
+        display.blit(torchDisp, (0, 0), special_flags=pg.BLEND_RGBA_MULT)
+
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            pg.quit()
+        elif event.type == pg.KEYDOWN:
+            if event.key == pg.K_m:  # Toggle light mask feature on 'm' key press
+                light_mask_enabled = not light_mask_enabled
+            
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            mx, my = pg.mouse.get_pos()
+            mx = round(mx // 3)
+            my = round(my // 3)
+            print(mx, my)
+            # Create a rectangle around the random coordinate
+            random_rect = pg.Rect(random_coordinate[0], random_coordinate[1], 16, 16)
+            print(random_coordinate)
+            # Check if the mouse click position collides with the random rectangle
+            if random_rect.collidepoint((mx,my)):
+                print("yes")
+            
+
 
     finalLight.dynamicTorch(final_map.wallShadow, torchDisp, mouseX, mouseY)
 
@@ -498,11 +551,7 @@ while True:
         display.blit(wallTex[90], (torch[1][0] - 8, torch[1][1] - 8))
     
     display.blit(torchDisp, (0,0), special_flags=pg.BLEND_RGBA_MULT)
-
-
-    for event in pg.event.get():
-        if event.type == pg.QUIT: 
-            pg.quit()
+    # display.blit(wallTex[90], (random_coordinate[0], random_coordinate[1]))
     
     surf = pg.transform.scale(display, (map_width, map_height))
     screen.blit(surf,(0,0))
