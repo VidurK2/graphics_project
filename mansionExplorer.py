@@ -3,6 +3,7 @@ import random
 import numpy as np
 import math
 from pygame.locals import *
+import json
 
 # class Ball:
 #     def __init__(self, x, y, radius, color):
@@ -87,6 +88,24 @@ def torchGlob(size, lightIntensity):
     noLight.fill((255,255,255,lightIntensity))
 
     return noLight
+
+
+def load_high_score():
+    try:
+        with open("high_score.json", "r") as file:
+            high_score_data = json.load(file)
+            return high_score_data["high_score"]
+    except FileNotFoundError:
+        return 0  # If file doesn't exist, return 0 as default high score
+
+# Function to save high score to JSON file
+def save_high_score(high_score):
+    high_score_data = {"high_score": high_score}
+    with open("high_score.json", "w") as file:
+        json.dump(high_score_data, file)
+
+# Load the high score at the beginning of the program
+high_score = load_high_score()
 
 
 # CLASSES
@@ -506,6 +525,9 @@ while True:
     time_passed += dt
 
     if time_passed >= timer_duration:
+        if score > high_score:
+            high_score = score
+            save_high_score(high_score)
         pg.quit()
         break
 
@@ -537,6 +559,9 @@ while True:
 
     for event in pg.event.get():
         if event.type == pg.QUIT:
+            if score > high_score:
+                high_score = score
+                save_high_score(high_score)
             pg.quit()
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_m:  # Toggle light mask feature on 'm' key press
